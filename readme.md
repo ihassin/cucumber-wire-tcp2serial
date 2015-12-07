@@ -12,7 +12,7 @@ The block diagram shows the components and their interaction:
 
 ## Only so much magic supplied...
 
-Whle the gateway portion is generic, the RPC server portion show here was written for the NRF51. This means that unless you have one, half of this project will not work for you.
+Whle the gateway portion is generic, the RPC server portion show here was written for the [NRF51](https://www.nordicsemi.com/eng/Products/Bluetooth-Smart-Bluetooth-low-energy/nRF51822). This means that unless you have one, half of this project will not work for you.
 To port it to your embedded device, you'd need to change the main() in RPC to open and interact accordingly with your device's UART.
 
 
