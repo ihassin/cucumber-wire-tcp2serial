@@ -1,0 +1,9 @@
+./idea
+./build
+**/.idea
+**/bin
+**/obj
+**/lib
+**/build
+**/CMakeFiles
+
