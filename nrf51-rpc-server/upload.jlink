@@ -1,0 +1,12 @@
+device nrf51822
+speed 1000
+r
+w4 4001e504 2
+w4 4001e50c 1
+r
+g
+loadfile s110_softdevice.hex 0
+loadfile _build/nrf51422_xxac.hex 0x00018000
+r
+g
+exit
