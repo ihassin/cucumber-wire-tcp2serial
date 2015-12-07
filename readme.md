@@ -14,7 +14,7 @@ It allows you to use the native Cucumber gem to execute your scripts on your dev
 
 The block diagram shows the components and their interaction:
 
-![](/Users/ThoughtWorks/Documents/projects/cucumber-tcp2serial/docs/components.png)
+![components](https://cloud.githubusercontent.com/assets/19006/11642643/10f6e6d0-9d0d-11e5-9a36-de58b092533c.png)
 
 
 # Customising the RPC listener
