@@ -1,7 +1,7 @@
 # Introduction
 
 It is sometimes useful to have integration tests run on an embedded device while development is ongoing.
-This project implements the Cucumber wire protocol to direct Cucumber step invocations over a serial port so that they run on the target device under test.
+This project implements the Cucumber wire protocol to direct [Cucumber](http://cucumber.io) step invocations over a serial port so that they run on the target device under test.
 
 It allows you to use the native Cucumber gem to execute your scripts on your development machine, and executes their steps in a server process that redirects the command execution requests to a serial port to which you connect your target device.
 
@@ -18,7 +18,6 @@ To port it to your embedded device, you'd need to change the main() in RPC to op
 
 # Customising the RPC listener
 
-
 The RPC listener on the device needs to be cusomised to your needs. Its intended use is to drive on-board integration tests, so receiving and executing the test suites needs to be defined by you.
 In order to customise the messaging protocol and execution parameters, you need to change the following two files:
 
@@ -32,18 +31,12 @@ Change the entries in the api-table array. Here, specify the steps' text as well
 Still in this file, implement the function that will be called when its corresponding step is invoked by Cucumber. An example:
 ```c
 	static int i\_have\_a\_red\_led(struct wire\_context *context)
-	
 	{
-	
 		char buff[20];	
 		int retVal = serial\_write(context->serialPortHandle, "EXEC 0\n");
-		
 		serial\_read(context->serialPortHandle, buff, sizeof(buff));
-		
 		return(retVal);
-	
 	}
-
 ```
 
 This will send "EXEC 0" to the device. Decide on your protocol and change accordingly.
@@ -55,15 +48,10 @@ On the device side:
 
 ```c
 	if (chr == '\n')
-	
 	{
-	
 		command_buffer[idx] = 0;
-		
 		idx = 0;
-		
 		**printf(command\_buffer);**
-	
 	}
 ```
 
@@ -113,7 +101,6 @@ It will automatically run, as the device will execute main() on powerup.
 
 # Example Cucumber script
 
-
 ```cucumber
 Feature: Hello World
 
@@ -123,8 +110,15 @@ Feature: Hello World
 		Then it's lit up
 ```
 
-# Contributing
+# Running example
 
+The Cuke:
+![nrf51 cucumber](https://cloud.githubusercontent.com/assets/19006/11642949/e1614972-9d0e-11e5-91d7-5330a9296ff6.png)
+
+The server logs and the RPC replying (in red):
+![nrf server](https://cloud.githubusercontent.com/assets/19006/11642997/266a27e6-9d0f-11e5-8df2-d1a46e57eeab.png)
+
+# Contributing
 
 1. [Fork it](https://github.com/ihassin/cucumber-wire-tcp2serial.git)
 2. Create your feature branch (`git checkout -b my-new-feature`)
@@ -133,9 +127,7 @@ Feature: Hello World
 5. Create a new Pull Request
 
 # Code of conduct
-
 Our code of conduct is [here](https://github.com/ihassin/cucumber-wire-tcp2serial/blob/master/CODE_OF_CONDUCT.md).
-
 
 # License
 
