@@ -8,7 +8,7 @@ It allows you to use the native Cucumber gem to execute your scripts on your dev
 # The components
 
 The block diagram shows the components and their interaction:
-![components](https://cloud.githubusercontent.com/assets/19006/11642643/10f6e6d0-9d0d-11e5-9a36-de58b092533c.png)
+![arch](https://cloud.githubusercontent.com/assets/19006/11671751/74d61006-9dd8-11e5-95ad-8f1d1e23f327.png)
 
 ## Only so much magic supplied...
 
