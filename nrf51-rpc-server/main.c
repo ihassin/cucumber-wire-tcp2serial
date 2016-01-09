@@ -29,6 +29,8 @@
 #include "nrf.h"
 #include "bsp.h"
 
+#include "api.h"
+
 #define MAX_TEST_DATA_BYTES     (15U)                /**< max number of test bytes to be used for tx and rx. */
 #define UART_TX_BUF_SIZE 256                         /**< UART TX buffer size. */
 #define UART_RX_BUF_SIZE 1                           /**< UART RX buffer size. */
@@ -78,25 +80,35 @@ int uart_read_byte()
     return(chr);
 }
 
+void init_leds()
+{
+    nrf_gpio_cfg_output(RED);
+    nrf_gpio_cfg_output(GREEN);
+}
+
 int main(void)
 {
+    init_leds();
+
     char command_buffer[UART_TX_BUF_SIZE];
     uint8_t idx = 0;
     uint8_t chr;
-    
+
     setup_uart();
 
     command_buffer[0] = 0;
     while (true)
     {
         chr = uart_read_byte();
-        while(app_uart_put(chr) != NRF_SUCCESS);
-
-        if (chr == '\n')
+        if (chr == '\r')
         {
             command_buffer[idx] = 0;
             idx = 0;
-            printf(command_buffer);
+            char *ret = api_handler(command_buffer);
+
+            while(app_uart_put(*ret ) != NRF_SUCCESS);
+            while(app_uart_put('\n') != NRF_SUCCESS);
+
         } else if(idx < UART_TX_BUF_SIZE)
         {
             command_buffer[idx++] = chr;
@@ -107,4 +119,5 @@ int main(void)
             printf("Ignoring overrun\r\n");
         }
     }
+
 }

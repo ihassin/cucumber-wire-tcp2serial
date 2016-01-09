@@ -32,32 +32,25 @@ static int i_have_a_red_led(struct wire_context *context)
 {
     char buff[20];
 
-    (*context->logger) ("i_have_a_red_led called\n");
-    int retVal = serial_write(context->serialPortHandle, "EXEC 0\n");
+    serial_write(context->serialPortHandle, "EXEC 0\r");
     serial_read(context->serialPortHandle, buff, sizeof(buff));
-    printf("i_have_a_red_led: <%s>\n", buff);
-	return(retVal);
+	return(*buff == '0' ? 0 : 1);
 }
 
 static int i_turn_it_on(struct wire_context *context)
 {
     char buff[20];
 
-    (*context->logger) ("i_turn_it_on called\n");
-    int retVal = serial_write(context->serialPortHandle, "EXEC 1\n");
+    serial_write(context->serialPortHandle, "EXEC 1\r");
     serial_read(context->serialPortHandle, buff, sizeof(buff));
-    printf("i_turn_it_on: <%s>\n", buff);
-    return(retVal);
+    return(*buff == '0' ? 0 : 1);
 }
 
-// <["invoke",{"id":"3","args":["scenario"]}]>
 static int it_is_lit_up(struct wire_context *context)
 {
     char buff[20];
 
-    (*context->logger) ("it_is_lit_up called\n");
-    int retVal = serial_write(context->serialPortHandle, "EXEC 2\n");
+    serial_write(context->serialPortHandle, "EXEC 2\r");
     serial_read(context->serialPortHandle, buff, sizeof(buff));
-    printf("it_is_lit_up: <%s>\n", buff);
-    return(retVal);
+    return(*buff == '0' ? 0 : 1);
 }

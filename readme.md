@@ -30,11 +30,11 @@ Change the entries in the api-table array. Here, specify the steps' text as well
 
 Still in this file, implement the function that will be called when its corresponding step is invoked by Cucumber. An example:
 ```c
-	static int i\_have\_a\_red\_led(struct wire\_context *context)
+	static int i_have_a_red_led(struct wire_context *context)
 	{
 		char buff[20];	
 		int retVal = serial\_write(context->serialPortHandle, "EXEC 0\n");
-		serial\_read(context->serialPortHandle, buff, sizeof(buff));
+		serial_read(context->serialPortHandle, buff, sizeof(buff));
 		return(retVal);
 	}
 ```
@@ -51,7 +51,7 @@ On the device side:
 	{
 		command_buffer[idx] = 0;
 		idx = 0;
-		**printf(command\_buffer);**
+		**printf(command_buffer);**
 	}
 ```
 
@@ -90,7 +90,7 @@ Use that port name as the first parameter, the second being the port number to l
 
 ```
 cd build
-cucumber\_tcp2serial /dev/tty.usbmodem1411 3901
+cucumber_tcp2serial /dev/tty.usbmodem1411 3901
 ```
 
 This will start the server and you will see logs as it receives commands from the Cucumber gem.

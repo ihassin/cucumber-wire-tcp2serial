@@ -38,6 +38,7 @@ remduplicates = $(strip $(if $1,$(firstword $1) $(call remduplicates,$(filter-ou
 C_SOURCE_FILES += \
 $(abspath $(COMPONENTS)/toolchain/system_nrf51.c) \
 $(abspath main.c) \
+$(abspath api.c) \
 $(abspath $(COMPONENTS)/libraries/util/app_error.c) \
 $(abspath $(COMPONENTS)/libraries/fifo/app_fifo.c) \
 $(abspath $(COMPONENTS)/libraries/util/app_util_platform.c) \

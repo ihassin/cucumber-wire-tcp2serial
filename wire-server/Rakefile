@@ -16,7 +16,7 @@ LIB 	= "./lib/wire.a"
 task :default => [:build]
 
 header_files = %w(system-includes.h wire-server.h wire-listener.h api.h token-handling.h handle-request.h)
-file_roots = %w(main wire-server wire-listener api token-handling handle-request)
+file_roots = %w(main wire-server wire-listener api token-handling handle-request serial scenario)
 
 file_roots.each do |element|
     file "obj/#{File.basename(element)}.o" => header_files + ["#{element}.c"] do

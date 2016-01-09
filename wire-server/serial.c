@@ -73,5 +73,4 @@ int serial_open(char *serialPortName)
 void serial_close(int serialPortHandle)
 {
     close(serialPortHandle);
-    printf("Serial closed\n");
 }
