@@ -16,62 +16,84 @@ Whle the gateway portion is generic, the RPC server portion show here was writte
 To port it to your embedded device, you'd need to change the main() in RPC to open and interact accordingly with your device's UART.
 
 
-# Customising the RPC listener
+# Customising the RPC Server
 
-The RPC listener on the device needs to be cusomised to your needs. Its intended use is to drive on-board integration tests, so receiving and executing the test suites needs to be defined by you.
+The RPC Server runs on the device and needs to be customised to your needs. Its intended use is to drive on-board integration tests, so handling the received requests and executing the test suites needs to be defined by you.
 In order to customise the messaging protocol and execution parameters, you need to change the following two files:
 
 
-On the server side:
+## On the server side:
 
-1. wire-server-api.c - This file contains the step-definition literals that you want to support.
-Change the entries in the api-table array. Here, specify the steps' text as well as the pointers to the functions that will execute once that step is invoked by Cucumber.
+1. wire-server/api.c - This file contains the step-definition literals that you want to support.
+Change the entries in the api_table array. Here, specify the steps' text as well as the pointers to the functions that will execute once that step is invoked by Cucumber.
 
+So change this:
 
-Still in this file, implement the function that will be called when its corresponding step is invoked by Cucumber. An example:
-```c
-	static int i_have_a_red_led(struct wire_context *context)
-	{
-		char buff[20];	
-		int retVal = serial\_write(context->serialPortHandle, "EXEC 0\n");
-		serial_read(context->serialPortHandle, buff, sizeof(buff));
-		return(retVal);
-	}
+```
+APITable api_table[] = {
+      { "I have a red led",     i_have_a_red_led    }
+    , { "I turn it on",         i_turn_it_on        }
+    , { "it's lit up",          it_is_lit_up        }
+    , 0
+};
+```
+to suit your needs.
+
+Still in this file, implement the functions that will be called when its corresponding step is invoked by Cucumber. An example:
+
+```
+static int i_have_a_red_led(struct wire_context *context)
+{
+    char buff[20];
+
+    serial_write(context->serialPortHandle, "EXEC 0\r");
+    serial_read(context->serialPortHandle, buff, sizeof(buff));
+	return(*buff == '0' ? 0 : 1);
+}
 ```
 
 This will send "EXEC 0" to the device. Decide on your protocol and change accordingly.
 
-On the device side:
+## On the device side:
 
-1. In main.c, change the read loop to execute an API function or a series of calls under tests:
+In nrf51-rpc-server/api.c, change the execution to call the needed APIs under tests:
 
+Change:
 
-```c
-	if (chr == '\n')
-	{
-		command_buffer[idx] = 0;
-		idx = 0;
-		**printf(command_buffer);**
-	}
+```
+char *api_handler(char *command)
+{
+    if(strstr(command, "0")) {
+        nrf_gpio_pin_clear(RED);
+        nrf_gpio_pin_set(GREEN);
+        return("0\n");
+    }
+
+    if(strstr(command, "1")) {      // Turn on red
+        nrf_gpio_pin_clear(GREEN);
+        nrf_gpio_pin_set(RED);
+        return("0\n");
+    }
+
+    if(strstr(command, "2")) {  // Check that red is on
+        return(nrf_gpio_pin_read(RED) ? "0\n" : "1\n");
+    }
+    return("1\n");
+}
 ```
 
-
-Here, instead of printf(), execute a device API or test based on the parsed command. In our example, it would be in response to "EXEC 0".
+to suit your needs.
 
 # Building the components
 
-## Building the gateway
+## Building the wire-server
 
 ```
-mkdir build
-cd build
-cmake ..
-make
+cd wire-server
+rake
 ```
 
-From then on, you can simply use ```make```.
-
-## Building the RPC listener
+## Building the RPC Serever
 
 ```
 cd nrf51-rpc-server
@@ -80,7 +102,7 @@ make
 
 Don't forget to flash your device with your modified code. You can use ```flash.sh```
 
-# Running the gateway
+# Running the wire-server
 
 Plug the target device into your USB port and issue
 
@@ -89,19 +111,19 @@ Plug the target device into your USB port and issue
 Use that port name as the first parameter, the second being the port number to listen on. This has to match the port number lisetd in the features/step\_definitions/cucumber.wire file.
 
 ```
-cd build
-cucumber_tcp2serial /dev/tty.usbmodem1411 3901
+cd wire-server
+./bin/wire.out /dev/tty.usbmodem1411 3901
 ```
 
 This will start the server and you will see logs as it receives commands from the Cucumber gem.
 
-# Running the RPC listener
+# Running the RPC Server
 
-It will automatically run, as the device will execute main() on powerup.
+It will automatically run, as soon as the device is plugged into the USB port as it will execute main() on powerup.
 
 # Example Cucumber script
 
-```cucumber
+```
 Feature: Hello World
 
 	Scenario: Blink red LED
