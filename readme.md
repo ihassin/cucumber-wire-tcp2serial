@@ -24,7 +24,7 @@ In order to customise the messaging protocol and execution parameters, you need 
 
 ## On the server side:
 
-1. wire-server/api.c - This file contains the step-definition literals that you want to support.
+wire-server/api.c - This file contains the step-definition literals that you want to support.
 Change the entries in the api_table array. Here, specify the steps' text as well as the pointers to the functions that will execute once that step is invoked by Cucumber.
 
 So change this:
