@@ -1,5 +1,6 @@
 ./idea
 ./build
+./_build
 **/.idea
 **/bin
 **/obj
