@@ -156,3 +156,4 @@ Our code of conduct is [here](https://github.com/ihassin/cucumber-wire-tcp2seria
 MIT.
 However, Nordic Semiconductor license applies to any NRF51 code used here.
 
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/ihassin/cucumber-wire-tcp2serial/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
