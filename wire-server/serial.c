@@ -66,7 +66,9 @@ int serial_open(char *serialPortName)
     theTermios.c_cc[VMIN] = 0;
     theTermios.c_cc[VTIME] = 100;
 
-    ioctl(fd, TIOCSETA, &theTermios);
+    // FIXME Need to confirm that tcsetattr works the same as ioctl
+    // ioctl(fd, TIOCSETA, &theTermios);
+    tcsetattr(fd, TCSANOW, &theTermios);
     return(fd);
 }
 
