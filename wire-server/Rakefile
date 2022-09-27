@@ -21,6 +21,7 @@ file_roots = %w(main wire-server wire-listener api token-handling handle-request
 file_roots.each do |element|
     file "obj/#{File.basename(element)}.o" => header_files + ["#{element}.c"] do
         puts "Compiling #{element}"
+	system "mkdir -p obj > /dev/null"
         fail unless system "#{COMPILER} #{C_FLAGS} -c #{element}.c -o obj/#{File.basename(element)}.o"
     end
 end
@@ -29,12 +30,14 @@ obj_files = file_roots.map {|item| "obj/" + File.basename(item) + ".o"}
 
 file "#{LIB}" =>  obj_files do
 	puts "Creating #{LIB} lib"
+	system "mkdir -p lib > /dev/null"
 	system "ar crs #{LIB} " + obj_files.join(" ") + "> /dev/null"
 end
 
 file "#{EXEC}" => "#{LIB}" do
 	puts "Linking wire"
-    system "#{COMPILER} -o #{EXEC} #{LIB}"
+	system "mkdir -p bin > /dev/null"
+        system "#{COMPILER} -o #{EXEC} #{LIB}"
 end
 
 desc "Compiles and links the wire-server executable"
