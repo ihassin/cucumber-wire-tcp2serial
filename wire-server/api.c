@@ -32,6 +32,8 @@ static int i_have_a_red_led(struct wire_context *context)
 {
     char buff[20];
 
+    printf("context->serialPortHandle = %d\n", context->serialPortHandle);
+    printf("context->serialPortName = %s\n", context->serialPortName);
     serial_write(context->serialPortHandle, "EXEC 0\r");
     serial_read(context->serialPortHandle, buff, sizeof(buff));
     printf("api.c: buff: <<%s>>\n", buff);
@@ -44,6 +46,7 @@ static int i_turn_it_on(struct wire_context *context)
 
     serial_write(context->serialPortHandle, "EXEC 1\r");
     serial_read(context->serialPortHandle, buff, sizeof(buff));
+    printf("api.c: buff: <<%s>>\n", buff);
     return(*buff == '0' ? 0 : 1);
 }
 
@@ -53,5 +56,6 @@ static int it_is_lit_up(struct wire_context *context)
 
     serial_write(context->serialPortHandle, "EXEC 2\r");
     serial_read(context->serialPortHandle, buff, sizeof(buff));
+    printf("api.c: buff: <<%s>>\n", buff);
     return(*buff == '0' ? 0 : 1);
 }

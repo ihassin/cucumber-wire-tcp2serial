@@ -23,8 +23,8 @@ int serial_read(int serialPortHandle, char *command, int maxBytes)
         int len = read(serialPortHandle, &chr, 1);
         if(len < 0)
         {
-	    //printf("serial_read(): len: %d\n", len);
-	    //printf("errno: %d\n", errno);
+	    printf("serial_read(): len: %d\n", len);
+	    printf("serial_read(): errno: %d\n", errno);
 
 	    // appears to work with or without the break commented out.
 	    // it was uncommented to begin with so I'll leave it like this.
@@ -50,12 +50,14 @@ int serial_write(int serialPortHandle, char *command)
     int retVal = write(serialPortHandle, command, len);
     printf("serial_write(): retVal: %d\n", retVal);
     printf("serial_write(): command: %s\n", command);
+    printf("serial_write(): errno: %d\n", errno);
     return(len == retVal ? 0 : retVal);
 }
 
 int serial_open(char *serialPortName)
 {
     int fd = open (serialPortName, O_RDWR | O_NOCTTY | O_SYNC);
+    printf("serial_open(): fd = %d\n", fd);
     if (fd < 0)
     {
         printf("error %d opening %s: %s\n", errno, serialPortName, strerror (errno));

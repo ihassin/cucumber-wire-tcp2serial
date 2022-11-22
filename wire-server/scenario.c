@@ -10,6 +10,7 @@
 
 int begin_callback(struct wire_context *context)
 {
+	printf("begin_callback(): context->serialPortName == %s\n", context->serialPortName);
     context->serialPortHandle = serial_open(context->serialPortName);
     return(context->serialPortHandle > 0 ? 0 : 1);
 }
