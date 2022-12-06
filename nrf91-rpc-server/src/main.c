@@ -9,6 +9,7 @@
 #include <drivers/uart.h>
 
 #include <string.h>
+#include "api.h"
 
 /* change this to any other UART peripheral if desired */
 #define UART_DEVICE_NODE DT_CHOSEN(zephyr_shell_uart)
@@ -43,11 +44,15 @@ void serial_cb(const struct device *dev, void *user_data)
 		if ((c == '\n' || c == '\r') && rx_buf_pos > 0) {
 			/* terminate string */
 			rx_buf[rx_buf_pos] = '\0';
+                        char *ret = api_handler(rx_buf);
 
 			/* if queue is full, message is silently dropped */
 			//k_msgq_put(&uart_msgq, &rx_buf, K_NO_WAIT);
-			char demo_buf[3] = { '0', '\n', '\0' };
-			k_msgq_put(&uart_msgq, &demo_buf, K_NO_WAIT);
+			//char demo_buf[3] = { '0', '\n', '\0' };
+			char tx_buf[128];
+			strncpy(tx_buf, ret, 128);
+			//k_msgq_put(&uart_msgq, &demo_buf, K_NO_WAIT);
+			k_msgq_put(&uart_msgq, &tx_buf, K_NO_WAIT);
 
 			/* reset the buffer (it was copied to the msgq) */
 			rx_buf_pos = 0;
@@ -78,6 +83,8 @@ void main(void)
 		printk("UART device not found!");
 		return;
 	}
+
+	init_leds();
 
 	/* configure interrupt and callback to receive data */
 	uart_irq_callback_user_data_set(uart_dev, serial_cb, NULL);
