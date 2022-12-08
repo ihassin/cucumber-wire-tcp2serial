@@ -38,7 +38,7 @@ typedef struct wire_context
     wire_step_snippet_callback      step_snippet_callback;
     wire_invoke_callback            invoke_callback;
     char                            incoming[1024];
-    char                            outgoing[1024];
+    char                            outgoing[1224];
     int                             serialPortHandle;
     char                            serialPortName[512];
     union
