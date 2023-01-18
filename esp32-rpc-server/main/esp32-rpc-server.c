@@ -7,6 +7,7 @@
    CONDITIONS OF ANY KIND, either express or implied.
 */
 #include <stdio.h>
+#include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/uart.h"
@@ -73,14 +74,14 @@ static void cucumber_task(void *arg)
             ESP_LOGI(TAG, "Read %c\r\n", chr);
             if (chr == '\r')
             {
+                ESP_LOGI(TAG, "About to call api_handler\r\n");
                 command_buffer[idx] = 0;
                 idx = 0;
-                ESP_LOGI(TAG, "About to call api_handler\r\n");
-                char *ret = api_handler(command_buffer);
-                ESP_LOGI(TAG, "api_handler returned %x\r\n",(int) ret);
+                int ret = api_handler(command_buffer);
 
-                uart_write_bytes(CUCUMBER_UART_PORT_NUM, (const char *) ret, 1);
-                uart_write_bytes(CUCUMBER_UART_PORT_NUM, "\n", 1);
+                char resp[20];
+                snprintf(resp, 20, "%d\n", ret);
+                uart_write_bytes(CUCUMBER_UART_PORT_NUM, resp, strlen(resp));
 
             } else if(idx < BUF_SIZE)
             {

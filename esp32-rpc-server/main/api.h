@@ -8,6 +8,6 @@
 #define RED     15
 
 void init_leds();
-char *api_handler(char *command);
+int api_handler(char *command);
 
 #endif
