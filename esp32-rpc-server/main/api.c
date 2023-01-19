@@ -5,6 +5,9 @@
 #include "api.h"
 #endif
 
+// Include the step constants
+#include "steps.h"
+
 // Look through a command string to find an argument
 // Commands are of the form 'EXEC <ID> ["<ARG1>", "<ARG2>"]'
 // Parameters:
@@ -101,7 +104,7 @@ int api_handler(char *command)
             // strtol found a number at the start, so cmd is valid
             switch (cmd)
             {
-            case 0:
+            case I_HAVE_A_PARAM_LED:
             {
                 // We expect a single argument giving which LED to change
                 char pinArg[20];
@@ -123,14 +126,14 @@ int api_handler(char *command)
                 return 1;
             }
             break;
-            case 1:
+            case I_TURN_IT_ON:
             {
                 gpio_set_level(GREEN, 0);
                 gpio_set_level(RED, 1);
                 return 0;
             }
             break;
-            case 2:
+            case THE_PARAM_LED_IS_PARAM:
             {
                 // We expect two arguments giving which LED to check, and its level
                 char pinArg[20];

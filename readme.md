@@ -80,27 +80,25 @@ to suit your needs.
 
 # Building the components
 
-## Building the wire-server
-
-```
-cd wire-server
-rake
-```
-
 ## Building the RPC Serever
 
+See the readme in the relevant RPC server folder for instructions.  To make sure the codes in the `steps.json` file are matched correctly there is a tool to generate a C/C++ header file with a `#define` for each step.
+
+To generate that (which you'll need to do whenever you modify `steps.json`):
 ```
-cd nrf51-rpc-server
-make
+cd wire-server-rb
+bundle exec ruby generate_step_header.rb steps.h
 ```
 
-Don't forget to flash your device with your modified code. You can use ```flash.sh```
+Then copy the `steps.h` file to the soruce folder in your RPC server, and build it.
+
+Don't forget to flash your device with your modified code.
 
 # Running the wire-server
 
 Plug the target device into your USB port and issue
 
-```ls /dev``` to see the port name assigned to it.
+`ls /dev` to see the port name assigned to it.
 
 Use that port name as the first parameter, the second being the port number to listen on. This has to match the port number lisetd in the features/step\_definitions/cucumber.wire file.
 
@@ -127,6 +125,12 @@ Feature: Hello World
 ```
 
 # Running example
+
+To run the tests, then run Cucumber:
+
+```
+bundle exec cucumber
+```
 
 The Cuke:
 ![nrf51 cucumber](https://cloud.githubusercontent.com/assets/19006/11642949/e1614972-9d0e-11e5-91d7-5330a9296ff6.png)

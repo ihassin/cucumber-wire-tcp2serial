@@ -5,6 +5,9 @@
 #include "api.h"
 #endif
 
+// Include the step constants
+#include "steps.h"
+
 #define LED_ON 1
 #define LED_OFF !LED_ON
 
@@ -78,7 +81,7 @@ int api_handler(char *command)
             // strtol found a number at the start, so cmd is valid
             switch (cmd)
             {
-            case 0:
+            case I_HAVE_A_PARAM_LED:
             {
                 // We expect a single argument giving which LED to change
                 char pinArg[20];
@@ -96,14 +99,14 @@ int api_handler(char *command)
                 return 1;
             }
             break;
-            case 1:
+            case I_TURN_IT_ON:
             {
                 gpio_pin_set_dt(&red_led, LED_ON);
                 gpio_pin_set_dt(&green_led, LED_OFF);
                 return 0;
             }
             break;
-            case 2:
+            case THE_PARAM_LED_IS_PARAM:
             {
                 // We expect two arguments giving which LED to check, and its level
                 char pinArg[20];

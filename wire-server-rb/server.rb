@@ -4,6 +4,7 @@ require 'cucumber/wire/data_packet'
 require 'cucumber/wire/connection'
 require 'cucumber/wire/configuration'
 require 'serialport'
+require 'json'
 
 # Patch 
 class WireConnectionWithSocket < Cucumber::Wire::Connection
@@ -30,7 +31,7 @@ class WireConnectionWithSocket < Cucumber::Wire::Connection
 end
 
 class RequestHandler
-    def initialize(serial_port, connection = nil, registry = nil)
+    def initialize(serial_port, steps, connection = nil, registry = nil)
         @connection = connection
         @message = underscore(self.class.name.split('::').last)
         @registry = registry
@@ -38,6 +39,7 @@ class RequestHandler
         # user provides, that handles begin/end scenario and matching steps?
         @serial_port = serial_port
         @serial_connection = nil
+        @steps = steps
     end
 
     def execute(request_params = nil)
@@ -51,17 +53,11 @@ class RequestHandler
     def handle_step_matches(params)
         puts "handle_step_matches"
 
-        steps = {
-            "I have a {string} led": 0,
-            "I turn it on": 1,
-            "the {string} led is {string}": 2
-        }
-
         matched = nil
         matched_step_id = nil
         name_to_match = params['name_to_match']
 
-        steps.keys.each do |k|
+        @steps.keys.each do |k|
             # The step might have parameters
             sqre = k.to_s.gsub("{string}", "'(.+)'")
             dqre = k.to_s.gsub("{string}", "\"(.+)\"")
@@ -69,7 +65,7 @@ class RequestHandler
             # This won't cope with steps defined with both single- and double-quotes
             # but folk shouldn't mix and match them ;-)
             if matched
-                matched_step_id = steps[k]
+                matched_step_id = @steps[k]
                 break
             end
         end
@@ -152,10 +148,14 @@ end
 serial_port = ARGV[0]
 server_port = ARGV[1].to_i
 
+# Load in the steps
+steps_data = File.read('steps.json') or die "Can't find steps.json file"
+steps = JSON.parse(steps_data)
+
 # Open listening socket
 server = TCPServer.new server_port
 
-request_handler = RequestHandler.new(serial_port)
+request_handler = RequestHandler.new(serial_port, steps)
 
 # Accept new connections
 loop do
