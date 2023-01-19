@@ -30,12 +30,13 @@ class WireConnectionWithSocket < Cucumber::Wire::Connection
 end
 
 class RequestHandler
-    def initialize(connection = nil, registry = nil)
+    def initialize(serial_port, connection = nil, registry = nil)
         @connection = connection
         @message = underscore(self.class.name.split('::').last)
         @registry = registry
         # Should this be spun out into a class that the
         # user provides, that handles begin/end scenario and matching steps?
+        @serial_port = serial_port
         @serial_connection = nil
     end
 
@@ -91,7 +92,7 @@ class RequestHandler
     end
 
     def handle_begin_scenario(params)
-        @serial_connection = SerialPort.open('/dev/ttyACM0', 38400)
+        @serial_connection = SerialPort.open(@serial_port, 38400)
         if @serial_connection
             Cucumber::Wire::DataPacket.new("success", params = [])
         else
@@ -139,11 +140,22 @@ class RequestHandler
     end
 end
 
+# Check we've got the right arguments
+if ARGV.length != 2
+    puts "Wrong number of arguments"
+    puts
+    puts "Usage: server.rb <serial port> <listening port>"
+    puts
+    exit(2)
+end
+
+serial_port = ARGV[0]
+server_port = ARGV[1].to_i
 
 # Open listening socket
-server = TCPServer.new 3901
+server = TCPServer.new server_port
 
-request_handler = RequestHandler.new
+request_handler = RequestHandler.new(serial_port)
 
 # Accept new connections
 loop do

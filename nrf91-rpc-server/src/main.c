@@ -9,6 +9,7 @@
 #include <drivers/uart.h>
 
 #include <string.h>
+#include <stdio.h>
 #include "api.h"
 
 /* change this to any other UART peripheral if desired */
@@ -44,13 +45,13 @@ void serial_cb(const struct device *dev, void *user_data)
 		if ((c == '\n' || c == '\r') && rx_buf_pos > 0) {
 			/* terminate string */
 			rx_buf[rx_buf_pos] = '\0';
-                        char *ret = api_handler(rx_buf);
+            int ret = api_handler(rx_buf);
 
 			/* if queue is full, message is silently dropped */
 			//k_msgq_put(&uart_msgq, &rx_buf, K_NO_WAIT);
 			//char demo_buf[3] = { '0', '\n', '\0' };
 			char tx_buf[128];
-			strncpy(tx_buf, ret, 128);
+			snprintf(tx_buf, 128, "%d\n", ret);
 			//k_msgq_put(&uart_msgq, &demo_buf, K_NO_WAIT);
 			k_msgq_put(&uart_msgq, &tx_buf, K_NO_WAIT);
 
