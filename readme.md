@@ -24,7 +24,7 @@ In order to customise the messaging protocol and execution parameters, you need 
 
 ## On the server side:
 
-wire-server-rb/server.rb - This file contains the step-definition literals that you want to support.
+wire-server/server.rb - This file contains the step-definition literals that you want to support.
 Change the entries in the `steps` hash. Here, specify the steps' text as well as the ID which will be sent to the microcontroller when that step is invoked by Cucumber.
 
 So change this:
@@ -86,7 +86,7 @@ See the readme in the relevant RPC server folder for instructions.  To make sure
 
 To generate that (which you'll need to do whenever you modify `steps.json`):
 ```
-cd wire-server-rb
+cd wire-server
 bundle exec ruby generate_step_header.rb steps.h
 ```
 
@@ -103,7 +103,7 @@ Plug the target device into your USB port and issue
 Use that port name as the first parameter, the second being the port number to listen on. This has to match the port number lisetd in the features/step\_definitions/cucumber.wire file.
 
 ```
-cd wire-server-rb
+cd wire-server
 bundle exec ruby server.rb /dev/tty.usbmodem1411 3901
 ```
 

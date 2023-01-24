@@ -83,30 +83,30 @@ class RequestHandler
             Cucumber::Wire::DataPacket.new("success", params = [match_params])
         else
             # The request succeeded, but didn't find anything
-            Cucumber::Wire::DataPacket.new("success", params = [])
+            Cucumber::Wire::DataPacket.new("success", params= [])
         end
     end
 
     def handle_begin_scenario(params)
         @serial_connection = SerialPort.open(@serial_port, 38400)
         if @serial_connection
-            Cucumber::Wire::DataPacket.new("success", params = [])
+            Cucumber::Wire::DataPacket.new("success")
         else
-            Cucumber::Wire::DataPacket.new("fail", params = [{"message": "Failed to open serial port"}])
+            Cucumber::Wire::DataPacket.new("fail", params = {"message": "Failed to open serial port"})
         end
     end
 
     def handle_end_scenario(params)
         @serial_connection.close if @serial_connection
         @serial_connection = nil
-        Cucumber::Wire::DataPacket.new("success", params = [])
+        Cucumber::Wire::DataPacket.new("success")
     end
 
     def handle_snippet_text(params)
         puts "skipping snippet_text"
         puts params
         # FIXME Include the snippet instructions to add steps here
-        Cucumber::Wire::DataPacket.new("success", params = [])
+        Cucumber::Wire::DataPacket.new("success")
     end
 
     def handle_invoke(params)
@@ -118,9 +118,9 @@ class RequestHandler
         @serial_connection.puts "EXEC #{id} #{args}\r"
         resp = @serial_connection.gets.strip
         if resp == "0"
-            Cucumber::Wire::DataPacket.new("success", params = [{"message": "Wire does not implement step_snippet"}])
+            Cucumber::Wire::DataPacket.new("success")
         else
-            Cucumber::Wire::DataPacket.new("fail", params = [{"message": "Step failed with #{resp}"}])
+            Cucumber::Wire::DataPacket.new("fail", params = {"message": "Step failed with #{resp}"})
         end
     end
 
@@ -159,11 +159,23 @@ request_handler = RequestHandler.new(serial_port, steps)
 
 # Accept new connections
 loop do
+    puts
+    puts "Waiting for connections..."
     client = server.accept
     wc = WireConnectionWithSocket.new(client)
 
     loop do
-        rmsg = wc.recv_packet(request_handler)
+        begin
+            rmsg = wc.recv_packet(request_handler)
+        rescue Cucumber::Wire::Exception => e
+            if e.message.include?("closed")
+                # This is fine, we've just reached the end
+                # of the tests
+                break
+            else
+                raise e
+            end
+        end
     end
 end
 
