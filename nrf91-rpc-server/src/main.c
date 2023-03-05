@@ -15,10 +15,10 @@
 /* change this to any other UART peripheral if desired */
 #define UART_DEVICE_NODE DT_CHOSEN(zephyr_shell_uart)
 
-#define MSG_SIZE 32
+#define MSG_SIZE 320
 
-/* queue to store up to 10 messages (aligned to 4-byte boundary) */
-K_MSGQ_DEFINE(uart_msgq, MSG_SIZE, 10, 4);
+/* queue to store up to 2 messages (aligned to 4-byte boundary) */
+K_MSGQ_DEFINE(uart_msgq, MSG_SIZE, 2, 4);
 
 static const struct device *uart_dev = DEVICE_DT_GET(UART_DEVICE_NODE);
 
@@ -45,16 +45,8 @@ void serial_cb(const struct device *dev, void *user_data)
 		if ((c == '\n' || c == '\r') && rx_buf_pos > 0) {
 			/* terminate string */
 			rx_buf[rx_buf_pos] = '\0';
-            int ret = api_handler(rx_buf);
-
 			/* if queue is full, message is silently dropped */
-			//k_msgq_put(&uart_msgq, &rx_buf, K_NO_WAIT);
-			//char demo_buf[3] = { '0', '\n', '\0' };
-			char tx_buf[128];
-			snprintf(tx_buf, 128, "%d\n", ret);
-			//k_msgq_put(&uart_msgq, &demo_buf, K_NO_WAIT);
-			k_msgq_put(&uart_msgq, &tx_buf, K_NO_WAIT);
-
+			k_msgq_put(&uart_msgq, &rx_buf, K_NO_WAIT);
 			/* reset the buffer (it was copied to the msgq) */
 			rx_buf_pos = 0;
 		} else if (rx_buf_pos < (sizeof(rx_buf) - 1)) {
@@ -78,7 +70,7 @@ void print_uart(char *buf)
 
 void main(void)
 {
-	char tx_buf[MSG_SIZE];
+	char step_buf[MSG_SIZE];
 
 	if (!device_is_ready(uart_dev)) {
 		printk("UART device not found!");
@@ -92,9 +84,10 @@ void main(void)
 	uart_irq_rx_enable(uart_dev);
 
 	/* indefinitely wait for input from the user */
-	while (k_msgq_get(&uart_msgq, &tx_buf, K_FOREVER) == 0) {
-		//print_uart("Echo: ");
+	while (k_msgq_get(&uart_msgq, &step_buf, K_FOREVER) == 0) {
+        int ret = api_handler(step_buf);
+        char tx_buf[128];
+        snprintf(tx_buf, 128, "%d\n", ret);
 		print_uart(tx_buf);
-		//print_uart("\r\n");
 	}
 }
