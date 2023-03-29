@@ -61,6 +61,9 @@ class RequestHandler
             # The step might have parameters
             sqre = k.to_s.gsub("{string}", "'(.+)'")
             dqre = k.to_s.gsub("{string}", "\"(.+)\"")
+            # Match the whole step, not just part of it
+            sqre = "^#{sqre}$"
+            dqre = "^#{dqre}$"
             matched = (name_to_match.match(sqre) or name_to_match.match(dqre))
             # This won't cope with steps defined with both single- and double-quotes
             # but folk shouldn't mix and match them ;-)
