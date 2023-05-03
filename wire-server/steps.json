@@ -1,0 +1,5 @@
+{
+    "I have a {string} led": 0,
+    "I turn it on": 1,
+    "the {string} led is {string}": 2
+}

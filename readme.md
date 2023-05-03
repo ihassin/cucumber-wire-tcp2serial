@@ -24,35 +24,29 @@ In order to customise the messaging protocol and execution parameters, you need 
 
 ## On the server side:
 
-wire-server/api.c - This file contains the step-definition literals that you want to support.
-Change the entries in the api_table array. Here, specify the steps' text as well as the pointers to the functions that will execute once that step is invoked by Cucumber.
+wire-server/server.rb - This file contains the step-definition literals that you want to support.
+Change the entries in the `steps` hash. Here, specify the steps' text as well as the ID which will be sent to the microcontroller when that step is invoked by Cucumber.
 
 So change this:
 
 ```
-APITable api_table[] = {
-      { "I have a red led",     i_have_a_red_led    }
-    , { "I turn it on",         i_turn_it_on        }
-    , { "it's lit up",          it_is_lit_up        }
-    , 0
-};
+        steps = {
+            "I have a {string} led": 0,
+            "I turn it on": 1,
+            "the {string} led is {string}": 2
+        }
 ```
 to suit your needs.
 
-Still in this file, implement the functions that will be called when its corresponding step is invoked by Cucumber. An example:
+This will send "EXEC 0" or "EXEC 1" or "EXEC 2" to the device depending on the step. Decide on your protocol and change accordingly.
+
+The "{string}" parts of the text describe parameters, which will match text in "s in the feature file step.  Those parameters will be sent on the same line as the "EXEC..." text, after the ID.  They'll be surrounded by "s and in [], separated by ,s.  So for the three steps defined in the example above, and in the provided example feature file, the following will be sent over serial:
 
 ```
-static int i_have_a_red_led(struct wire_context *context)
-{
-    char buff[20];
-
-    serial_write(context->serialPortHandle, "EXEC 0\r");
-    serial_read(context->serialPortHandle, buff, sizeof(buff));
-	return(*buff == '0' ? 0 : 1);
-}
+EXEC 0 ["red"]
+EXEC 1 []
+EXEC 2 ["red", "lit up"]
 ```
-
-This will send "EXEC 0" to the device. Decide on your protocol and change accordingly.
 
 ## On the device side:
 
@@ -86,33 +80,31 @@ to suit your needs.
 
 # Building the components
 
-## Building the wire-server
-
-```
-cd wire-server
-rake
-```
-
 ## Building the RPC Serever
 
+See the readme in the relevant RPC server folder for instructions.  To make sure the codes in the `steps.json` file are matched correctly there is a tool to generate a C/C++ header file with a `#define` for each step.
+
+To generate that (which you'll need to do whenever you modify `steps.json`):
 ```
-cd nrf51-rpc-server
-make
+cd wire-server
+bundle exec ruby generate_step_header.rb steps.h
 ```
 
-Don't forget to flash your device with your modified code. You can use ```flash.sh```
+Then copy the `steps.h` file to the soruce folder in your RPC server, and build it.
+
+Don't forget to flash your device with your modified code.
 
 # Running the wire-server
 
 Plug the target device into your USB port and issue
 
-```ls /dev``` to see the port name assigned to it.
+`ls /dev` to see the port name assigned to it.
 
 Use that port name as the first parameter, the second being the port number to listen on. This has to match the port number lisetd in the features/step\_definitions/cucumber.wire file.
 
 ```
 cd wire-server
-./bin/wire.out /dev/tty.usbmodem1411 3901
+bundle exec ruby server.rb /dev/tty.usbmodem1411 3901
 ```
 
 This will start the server and you will see logs as it receives commands from the Cucumber gem.
@@ -133,6 +125,12 @@ Feature: Hello World
 ```
 
 # Running example
+
+To run the tests, then run Cucumber:
+
+```
+bundle exec cucumber
+```
 
 The Cuke:
 ![nrf51 cucumber](https://cloud.githubusercontent.com/assets/19006/11642949/e1614972-9d0e-11e5-91d7-5330a9296ff6.png)

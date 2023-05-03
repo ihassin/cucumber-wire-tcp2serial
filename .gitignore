@@ -7,4 +7,5 @@
 **/lib
 **/build
 **/CMakeFiles
-
+**/steps.h
+esp32-rpc-server/sdkconfig.old
