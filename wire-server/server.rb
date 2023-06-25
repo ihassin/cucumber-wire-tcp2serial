@@ -91,7 +91,7 @@ class RequestHandler
     end
 
     def handle_begin_scenario(params)
-        @serial_connection = SerialPort.open(@serial_port, 38400)
+        @serial_connection = SerialPort.open(@serial_port, 115200)
         if @serial_connection
             Cucumber::Wire::DataPacket.new("success")
         else
