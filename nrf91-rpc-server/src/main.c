@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <zephyr.h>
-#include <device.h>
-#include <drivers/uart.h>
+#include <zephyr/zephyr.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/uart.h>
+#include <zephyr/logging/log.h>
 
 #include <string.h>
 #include <stdio.h>
@@ -15,7 +16,7 @@
 /* change this to any other UART peripheral if desired */
 #define UART_DEVICE_NODE DT_CHOSEN(zephyr_shell_uart)
 
-#define MSG_SIZE 320
+#define MSG_SIZE 120
 
 /* queue to store up to 2 messages (aligned to 4-byte boundary) */
 K_MSGQ_DEFINE(uart_msgq, MSG_SIZE, 2, 4);
@@ -32,62 +33,50 @@ static int rx_buf_pos;
  */
 void serial_cb(const struct device *dev, void *user_data)
 {
-	uint8_t c;
+    uint8_t c;
 
-	if (!uart_irq_update(uart_dev)) {
-		return;
-	}
+    if (!uart_irq_update(uart_dev)) {
+        return;
+    }
 
-	while (uart_irq_rx_ready(uart_dev)) {
+    while (uart_irq_rx_ready(uart_dev)) {
 
-		uart_fifo_read(uart_dev, &c, 1);
+        uart_fifo_read(uart_dev, &c, 1);
 
-		if ((c == '\n' || c == '\r') && rx_buf_pos > 0) {
-			/* terminate string */
-			rx_buf[rx_buf_pos] = '\0';
-			/* if queue is full, message is silently dropped */
-			k_msgq_put(&uart_msgq, &rx_buf, K_NO_WAIT);
-			/* reset the buffer (it was copied to the msgq) */
-			rx_buf_pos = 0;
-		} else if (rx_buf_pos < (sizeof(rx_buf) - 1)) {
-			rx_buf[rx_buf_pos++] = c;
-		}
-		/* else: characters beyond buffer size are dropped */
-	}
+        if ((c == '\n' || c == '\r') && rx_buf_pos > 0) {
+            /* terminate string */
+            rx_buf[rx_buf_pos] = '\0';
+            /* if queue is full, message is silently dropped */
+            k_msgq_put(&uart_msgq, &rx_buf, K_NO_WAIT);
+            /* reset the buffer (it was copied to the msgq) */
+            rx_buf_pos = 0;
+        } else if (rx_buf_pos < (sizeof(rx_buf) - 1)) {
+            rx_buf[rx_buf_pos++] = c;
+        }
+        /* else: characters beyond buffer size are dropped */
+    }
 }
 
-/*
- * Print a null-terminated string character by character to the UART interface
- */
-void print_uart(char *buf)
-{
-	int msg_len = strlen(buf);
-
-	for (int i = 0; i < msg_len; i++) {
-		uart_poll_out(uart_dev, buf[i]);
-	}
-}
+LOG_MODULE_REGISTER(cucumber);
 
 void main(void)
 {
-	char step_buf[MSG_SIZE];
+    char step_buf[MSG_SIZE];
 
-	if (!device_is_ready(uart_dev)) {
-		printk("UART device not found!");
-		return;
-	}
+    if (!device_is_ready(uart_dev)) {
+        printk("UART device not found!");
+        return;
+    }
 
-	init_leds();
+    init_leds();
 
-	/* configure interrupt and callback to receive data */
-	uart_irq_callback_user_data_set(uart_dev, serial_cb, NULL);
-	uart_irq_rx_enable(uart_dev);
+    /* configure interrupt and callback to receive data */
+    uart_irq_callback_user_data_set(uart_dev, serial_cb, NULL);
+    uart_irq_rx_enable(uart_dev);
 
-	/* indefinitely wait for input from the user */
-	while (k_msgq_get(&uart_msgq, &step_buf, K_FOREVER) == 0) {
+    /* indefinitely wait for input from the user */
+    while (k_msgq_get(&uart_msgq, &step_buf, K_FOREVER) == 0) {
         int ret = api_handler(step_buf);
-        char tx_buf[128];
-        snprintf(tx_buf, 128, "%d\n", ret);
-		print_uart(tx_buf);
-	}
+        LOG_ERR("%d\n", ret);
+    }
 }

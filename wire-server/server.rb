@@ -119,8 +119,39 @@ class RequestHandler
         args = params["args"].to_s
         puts "EXEC #{id} #{args}\r"
         @serial_connection.puts "EXEC #{id} #{args}\r"
-        resp = @serial_connection.gets.strip
-        if resp == "0"
+        reply = nil
+        while reply.nil? do
+            resp = @serial_connection.gets
+            unless resp.nil?
+                begin
+                    resp.strip!
+                rescue Exception => e
+                    # After programming (on nrf91 at least) there's sometimes a duff
+                    # byte or two at the start of the buffer
+                    puts "strip! failed #{e}"
+                    new_resp = ""
+                    resp.bytes do |c|
+                        puts "%3d 0x%02X" % [ c, c ]
+                        if c < 128 and c > 8
+                            # It's a "normal" ASCII byte, let it through the filter
+                            new_resp = new_resp + c.chr
+                        end
+                    end
+                    puts "Filtered version is >>#{new_resp}<<"
+                    resp = new_resp
+                end
+                # See if it's a response to the EXEC (i.e. does it start with [RESULT])
+                parsed_resp = /cucumber: (\-?\d+)/.match(resp)
+                if parsed_resp
+                    reply = parsed_resp[1]
+                else
+                    # It's not a reply, just some debug logging, print that out
+                    puts "LOG: #{resp}"
+                end
+            end
+        end
+
+        if reply == "0"
             Cucumber::Wire::DataPacket.new("success")
         else
             Cucumber::Wire::DataPacket.new("fail", params = {"message": "Step failed with #{resp}"})

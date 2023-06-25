@@ -79,8 +79,8 @@ static void cucumber_task(void *arg)
                 idx = 0;
                 int ret = api_handler(command_buffer);
 
-                char resp[20];
-                snprintf(resp, 20, "%d\n", ret);
+                char resp[40];
+                snprintf(resp, 40, "\ncucumber: %d\n", ret);
                 uart_write_bytes(CUCUMBER_UART_PORT_NUM, resp, strlen(resp));
 
             } else if(idx < BUF_SIZE)

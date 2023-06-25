@@ -18,7 +18,7 @@ menu "Cucumber Test Example Configuration"
         range 0 46 if IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
         range 0 19 if IDF_TARGET_ESP32C3
         range 0 47 if IDF_TARGET_ESP32S3
-        default 15
+        default 3
         help
             GPIO number for UART RX pin. See UART documentation for more information
             about available pin numbers for UART.
@@ -29,7 +29,7 @@ menu "Cucumber Test Example Configuration"
         range 0 46 if IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
         range 0 19 if IDF_TARGET_ESP32C3
         range 0 47 if IDF_TARGET_ESP32S3
-        default 14
+        default 1
         help
             GPIO number for UART TX pin. See UART documentation for more information
             about available pin numbers for UART.
